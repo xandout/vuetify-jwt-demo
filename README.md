@@ -7,6 +7,8 @@ docker-compose up -d
 docker-compose logs -f client node-api
 ```
 
+> Browse to http://YOUR_IP:8085
+
 ## Backend
 
 The backend is built in node(express) and uses mongo as a datastore
