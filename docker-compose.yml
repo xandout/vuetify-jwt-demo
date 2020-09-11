@@ -1,0 +1,58 @@
+version: '2.4'
+networks:
+  main:
+services:
+  mongo:
+    image: mongo
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - main
+    volumes:
+      - ./mongo_data:/data/db
+  mongo-express:
+    image: mongo-express
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - main
+  node-api:
+    image: node:14
+    working_dir: /home/node/app
+    env_file:
+      - .env
+    command: 
+      - /bin/bash
+      - -c
+      - |
+        npm install
+        npm run dev
+    volumes:
+      - ./server:/home/node/app
+    networks:
+      - main
+  client:
+    image: node:14
+    working_dir: /home/node/app
+    env_file:
+      - .env
+    command: 
+      - /bin/bash
+      - -c
+      - |
+        npm install
+        npm run serve
+    volumes:
+      - ./client:/home/node/app
+    networks:
+      - main
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 8085:8085
+    networks:
+      - main
