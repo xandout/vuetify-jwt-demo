@@ -4,15 +4,9 @@ Axios.defaults.baseURL = baseUrl
 export default {
     login(email, pass, cb) {
         cb = arguments[arguments.length - 1]
-        if (localStorage.token) {
-            if (cb) cb(true)
-            this.onChange(true)
-            return
-        }
         Axios.post("/login", { email: email, password: pass })
             .then(res => {
                 if (res.data.status == 200) {
-                    localStorage.setItem('token', res.data.token)
                     cb(true)
                     this.onChange(true)
                 } else {
@@ -29,11 +23,6 @@ export default {
     },
     register(email, pass, first, last, cb) {
         cb = arguments[arguments.length - 1]
-        if (localStorage.token) {
-            if (cb) cb(true)
-            this.onChange(true)
-            return
-        }
         Axios.post('/register', {
             email: email,
             password: pass,
@@ -54,24 +43,28 @@ export default {
             this.onChange(false)
         })
     },
-    getToken() {
-        return localStorage.token
-    },
     logout(cb) {
-        delete localStorage.token
+        Axios.get('/logout').then(res => {
+            cb(res.data)
+        })
         if (cb) cb()
         this.onChange(false)
     },
-    loggedIn() {
-        return !!localStorage.token
+    loggedIn(cb) {
+        Axios.get('/valid')
+            .then((res) => {
+                if (res.data.status != "ok") {
+                    cb(false)
+                    this.onChange(false)
+                } else {
+                    cb(true)
+                    this.onChange(true)
+                }
+            })
+        
     },
     whoAmI(cb) {
-        let config = {
-            headers: {
-                'Authorization': `Bearer ${this.getToken()}`
-            }
-        }
-        Axios.get('/whoami', config)
+        Axios.get('/whoami')
             .then(res => {
                 cb(res.data)
             })

@@ -62,15 +62,7 @@ module.exports = {
         bcrypt.compare(pass, user.password).then(match => {
           if (match) {
             result.status = status;
-            // Create a token
-            const payload = { user: user.id };
-            const options = {
-              expiresIn: '2d',
-            };
-            const secret = process.env.JWT_SECRET;
-            const token = jwt.sign(payload, secret, options);
-
-            result.token = token;
+            req.session.user_id = user.id
           } else {
             status = 401;
             result.status = status;
@@ -97,22 +89,36 @@ module.exports = {
       }
     })
   },
+  logout: (req, res) => {
+    req.session.destroy(err => {
+      res.status(200).send({ status: "ok" })
+    })
+  },
   whoAmI: (req, res) => {
     let result = {};
     let status = 200;
-    const payload = req.decoded;
-    let user = payload.user;
+    let user = req.session.user_id;
     User.findById({ _id: user }, '_id email first_name last_name', (findUserErr, foundUser) => {
-      if(!findUserErr && foundUser) {
+      if (!findUserErr && foundUser) {
         result.id = foundUser._id
         result.email = foundUser.email
         result.first_name = foundUser.first_name
-        result.last_name  = foundUser.last_name
+        result.last_name = foundUser.last_name
       } else {
         status = 404
         result.error = findUserErr
       }
       res.status(status).send(result)
     })
+  },
+  isLoggedIn: (req, res) => {
+    let status = 200
+    let result = {}
+    if (req.session.user_id) {
+      result.status = "ok"
+    } else {
+      result.status = "no"
+    }
+    res.status(status).send(result)
   }
 }

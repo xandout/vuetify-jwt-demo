@@ -7,15 +7,27 @@ import Profile from '../components/Profile.vue'
 import auth from '../services/auth'
 Vue.use(VueRouter)
 
+function requireNotLoggedIn(to, from, next) {
+  auth.loggedIn((isLoggedIn) => {
+    if (!isLoggedIn) {
+      next()
+    } else {
+      next('/')
+    }
+  })
+}
+
 function requireAuth(to, from, next) {
-  if (!auth.loggedIn()) {
-    next({
-      path: '/login',
-      query: { redirect: to.fullPath }
-    })
-  } else {
-    next()
-  }
+  auth.loggedIn((isLoggedIn) => {
+    if (isLoggedIn) {
+      next()
+    } else {
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      })
+    }
+  })
 }
 
 const routes = [
@@ -27,7 +39,8 @@ const routes = [
     children: [
       {
         path: 'profile',
-        component: Profile
+        component: Profile,
+        beforeEnter: requireAuth,
       }
     ]
   },
@@ -35,25 +48,13 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login,
-    beforeEnter: (to, from, next) => {
-      if (auth.loggedIn()) {
-        // Don't let logged in users access the login page
-        next('/')
-      }
-      next()
-    }
+    beforeEnter: requireNotLoggedIn
   },
   {
     path: '/register',
     name: 'Register',
     component: Register,
-    beforeEnter: (to, from, next) => {
-      if (auth.loggedIn()) {
-        // Don't let logged in users access the register page
-        next('/')
-      }
-      next()
-    }
+    beforeEnter: requireNotLoggedIn
   },
   {
     path: '/logout',
@@ -61,7 +62,6 @@ const routes = [
       auth.logout(() => {
         next('/login')
       })
-
     }
   }
 ]

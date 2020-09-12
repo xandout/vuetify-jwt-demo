@@ -1,9 +1,9 @@
 const controller = require('../controllers/protected');
-const validateToken = require('../middleware/jwt').validateToken;
+// const validateToken = require('../middleware/jwt').validateToken;
 
 module.exports = (router) => {
     router.route('/protected')
-      .get(validateToken, controller.get);
+      .get( controller.get);
     router.route('/unprotected')
       .get((req, res) => {
         res.status(200).send("ok")

@@ -5,6 +5,8 @@ const express = require('express');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 var cors = require('cors')
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 
 const app = express();
 const router = express.Router();
@@ -36,6 +38,13 @@ app.use(cors())
 app.use(express.json());
 app.use(bodyParser.urlencoded({
   extended: true
+}));
+app.use(session({
+  name: 'vuetify-app',
+  secret: process.env.COOKIE_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  store: new MongoStore({ mongooseConnection: global.db })
 }));
 
 if (environment !== 'production') {
