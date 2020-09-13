@@ -14,12 +14,6 @@ export default {
                     this.onChange(false)
                 }
             })
-            .catch(err => {
-                cb(false)
-                this.onChange(false)
-                console.log(err)
-                return
-            })
     },
     register(email, pass, first, last, cb) {
         cb = arguments[arguments.length - 1]
@@ -29,7 +23,7 @@ export default {
             first_name: first,
             last_name: last
         }).then(res => {
-            if (res.data.status == 201) {
+            if (res.data.status == 200) {
                 this.login(email, pass, loggedIn => {
                     // logged the new user in
                     cb(loggedIn)
@@ -43,25 +37,37 @@ export default {
             this.onChange(false)
         })
     },
+    update(email, pass, first, last, cb) {
+        cb = arguments[arguments.length - 1]
+        Axios.post('/update', {
+            email: email,
+            password: pass,
+            first_name: first,
+            last_name: last
+        }).then(res => {
+            cb(res)
+        }).catch(err => {
+            console.log(err)
+            cb(false)
+            this.onChange(false)
+        })
+    },
     logout(cb) {
-        Axios.get('/logout').then(res => {
+        Axios.get('/logout', {
+            withCredentials: true
+        }).then(res => {
             cb(res.data)
         })
-        if (cb) cb()
         this.onChange(false)
     },
     loggedIn(cb) {
         Axios.get('/valid')
-            .then((res) => {
-                if (res.data.status != "ok") {
-                    cb(false)
-                    this.onChange(false)
-                } else {
-                    cb(true)
-                    this.onChange(true)
-                }
-            })
-        
+          .then(() => {
+              cb(true)
+          })
+          .catch(() => {
+              cb(false)
+          })
     },
     whoAmI(cb) {
         Axios.get('/whoami')

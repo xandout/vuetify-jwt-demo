@@ -13,6 +13,9 @@ module.exports = (router) => {
   router.route('/whoami')
     .get(controller.whoAmI)
 
+  router.route('/update')
+    .post(controller.update)
+
   router.route('/valid')
     .get(controller.isLoggedIn)
 };

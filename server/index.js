@@ -26,6 +26,7 @@ global.db = (global.db ? global.db : mongoose.createConnection(connUri, {
   useNewUrlParser: true,
   useFindAndModify: false,
   useCreateIndex: true,
+  autoIndex: true,
   useUnifiedTopology: true,
   user: connUser,
   pass: connPass,
@@ -33,6 +34,7 @@ global.db = (global.db ? global.db : mongoose.createConnection(connUri, {
     "authSource": "admin"
   }
 }))
+
 
 app.use(cors())
 app.use(express.json());

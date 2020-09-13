@@ -9,11 +9,10 @@ Vue.use(VueRouter)
 
 function requireNotLoggedIn(to, from, next) {
   auth.loggedIn((isLoggedIn) => {
-    if (!isLoggedIn) {
-      next()
-    } else {
+    if (isLoggedIn) {
       next('/')
     }
+    next()
   })
 }
 
@@ -22,10 +21,7 @@ function requireAuth(to, from, next) {
     if (isLoggedIn) {
       next()
     } else {
-      next({
-        path: '/login',
-        query: { redirect: to.fullPath }
-      })
+      next('/login')
     }
   })
 }

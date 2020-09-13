@@ -11,11 +11,12 @@
                 <v-tooltip bottom></v-tooltip>
               </v-toolbar>
               <v-card-text>
-                <v-form @submit.prevent="login">
+                <v-form @submit.prevent="login" v-model="valid">
                   <v-text-field
                     v-model="email"
                     label="Email"
                     name="email"
+                    :rules="[rules.required, rules.email]"
                     prepend-icon="mdi-account"
                     type="email"
                   ></v-text-field>
@@ -25,13 +26,14 @@
                     id="password"
                     label="Password"
                     name="password"
+                    :rules="[rules.required]"
                     prepend-icon="mdi-lock"
                     type="password"
                   ></v-text-field>
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="blue-grey lighten-3" to="/register">Register</v-btn>
-                    <v-btn color="blue-grey" type="submit">Login</v-btn>
+                    <v-btn :disabled="!valid" color="blue-grey" type="submit">Login</v-btn>
                   </v-card-actions>
                 </v-form>
               </v-card-text>
@@ -51,6 +53,14 @@ export default {
       email: "",
       pass: "",
       error: false,
+      valid: false,
+      rules: {
+        required: (value) => !!value || "Required.",
+        email: (value) => {
+          const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          return pattern.test(value) || "Invalid e-mail.";
+        },
+      },
     };
   },
   methods: {
